@@ -13,7 +13,7 @@ class Course(models.Model):
     description_course = models.TextField(verbose_name='описание', blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.name_course if self.name_course else "Unnamed course"
 
     class Meta:
         verbose_name = 'курс'
@@ -33,7 +33,7 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, default=None, verbose_name='курс')
 
     def __str__(self):
-        return self.name
+        return self.name_lesson if self.name_lesson else "Unnamed Lesson"
 
     class Meta:
         verbose_name = 'урок'
