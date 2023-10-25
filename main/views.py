@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from main.models import Course, Lesson, Payment
 from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer
-from users.permissions import IsModeratorBan, IsModeratorOrReadUpdateOnly
+from users.permissions import IsModeratorBanLesson, IsOwnerOfStaff, IsModeratorReadOnlyUpdate
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -14,7 +14,19 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    permission_classes = [IsAuthenticated, IsModeratorOrReadUpdateOnly]
+    permission_classes = [IsAuthenticated, IsModeratorReadOnlyUpdate, IsOwnerOfStaff]
+
+    def perform_create(self, serializer):
+        new_course = serializer.save()
+        new_course.owner = self.request.user
+        new_course.save()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name='Модераторы').exists():
+            return Course.objects.all()
+        else:
+            return Course.objects.filter(owner=user)
 
 
 # -------------------------------------------------------------------------------
@@ -25,7 +37,12 @@ class LessonCreateAPIView(generics.CreateAPIView):
     Контроллер создания урока
     """
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated, IsModeratorBan]
+    permission_classes = [IsAuthenticated, IsModeratorBanLesson]
+
+    def perform_create(self, serializer):
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        new_lesson.save()
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -34,7 +51,14 @@ class LessonListAPIView(generics.ListAPIView):
     """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModeratorBanLesson]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name='Модераторы').exists():
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(owner=user)
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
@@ -43,7 +67,7 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
     """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModeratorBanLesson, IsOwnerOfStaff]
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
@@ -52,7 +76,7 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
     """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModeratorBanLesson, IsOwnerOfStaff]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
@@ -60,7 +84,7 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     Контроллер удаления урока
     """
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsModeratorBan]
+    permission_classes = [IsAuthenticated, IsModeratorBanLesson, IsOwnerOfStaff]
 
 
 # --------------------------------------------------------------------------------
@@ -85,4 +109,3 @@ class PaymentListAPIView(generics.ListAPIView):
     filterset_fields = ('payment_date', 'payment_method', 'course')  # Набор полей для фильтрации
     ordering_fields = ['payment_date', 'payment_method']  # Набор полей для фильтрации
     permission_classes = [IsAuthenticated]
-
