@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from users.models import User
@@ -12,8 +13,10 @@ class Course(models.Model):
     preview_course = models.ImageField(upload_to='course_previews/', verbose_name='превью', blank=True, null=True)
     description_course = models.TextField(verbose_name='описание', blank=True, null=True)
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+
     def __str__(self):
-        return self.name
+        return self.name_course if self.name_course else "Unnamed course"
 
     class Meta:
         verbose_name = 'курс'
@@ -31,9 +34,10 @@ class Lesson(models.Model):
     video_link_lesson = models.URLField(verbose_name='ссылка на видео', blank=True, null=True)
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, default=None, verbose_name='курс')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.name_lesson if self.name_lesson else "Unnamed Lesson"
 
     class Meta:
         verbose_name = 'урок'
