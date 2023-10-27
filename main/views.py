@@ -3,8 +3,8 @@ from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 
-from main.models import Course, Lesson, Payment
-from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer
+from main.models import Course, Lesson, Payment, Subscription
+from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from users.permissions import IsModeratorBanLesson, IsOwnerOfStaff, IsModeratorReadOnlyUpdate
 
 
@@ -14,7 +14,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    permission_classes = [IsAuthenticated, IsModeratorReadOnlyUpdate, IsOwnerOfStaff]
+    permission_classes = [IsAuthenticated, IsModeratorReadOnlyUpdate]
 
     def perform_create(self, serializer):
         new_course = serializer.save()
@@ -108,4 +108,29 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ('payment_date', 'payment_method', 'course')  # Набор полей для фильтрации
     ordering_fields = ['payment_date', 'payment_method']  # Набор полей для фильтрации
+    permission_classes = [IsAuthenticated]
+
+
+# -----------------------------------------------------------------------------
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    """
+    Контроллер создания подписки.
+    """
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    # def perform_create(self, serializer):
+    #     subscription = serializer.save()
+    #     subscription.owner = self.request.user
+    #     subscription.save()
+
+
+class SubscriptionDestroyAPIView(generics.DestroyAPIView):
+    """
+    Контроллер для удаления подписки.
+    """
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
     permission_classes = [IsAuthenticated]
