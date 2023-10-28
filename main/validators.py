@@ -15,3 +15,4 @@ class VideoLinkLessonValidator:
         tmp_val = dict(value).get(self.field)
         if tmp_val is not None and not bool(reg.match(tmp_val)):
             raise ValidationError('Недопустимая ссылка')
+        return tmp_val
