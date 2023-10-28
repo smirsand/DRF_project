@@ -13,5 +13,5 @@ class VideoLinkLessonValidator:
     def __call__(self, value):
         reg = re.compile(r"(?i)^https?://(?:www\.)?youtube\.com(?:\S+)?$")
         tmp_val = dict(value).get(self.field)
-        if not bool(reg.match(tmp_val)):
+        if tmp_val is not None and not bool(reg.match(tmp_val)):
             raise ValidationError('Недопустимая ссылка')
