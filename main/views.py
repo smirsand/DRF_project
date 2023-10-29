@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from main.models import Course, Lesson, Payment
-from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer
+from main.models import Course, Lesson, Payment, Subscription
+from main.paginators import LessonPaginator
+from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from users.permissions import IsModeratorBanLesson, IsOwnerOfStaff, IsModeratorReadOnlyUpdate
 
 
@@ -14,7 +15,8 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    permission_classes = [IsAuthenticated, IsModeratorReadOnlyUpdate, IsOwnerOfStaff]
+    permission_classes = [IsAuthenticated, IsModeratorReadOnlyUpdate]
+    pagination_class = LessonPaginator
 
     def perform_create(self, serializer):
         new_course = serializer.save()
@@ -37,7 +39,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
     Контроллер создания урока
     """
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated, IsModeratorBanLesson]
+    permission_classes = [AllowAny, IsModeratorBanLesson]
 
     def perform_create(self, serializer):
         new_lesson = serializer.save()
@@ -52,6 +54,7 @@ class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModeratorBanLesson]
+    pagination_class = LessonPaginator
 
     def get_queryset(self):
         user = self.request.user
@@ -108,4 +111,29 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ('payment_date', 'payment_method', 'course')  # Набор полей для фильтрации
     ordering_fields = ['payment_date', 'payment_method']  # Набор полей для фильтрации
+    permission_classes = [IsAuthenticated]
+
+
+# -----------------------------------------------------------------------------
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    """
+    Контроллер создания подписки.
+    """
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    # def perform_create(self, serializer):
+    #     subscription = serializer.save()
+    #     subscription.owner = self.request.user
+    #     subscription.save()
+
+
+class SubscriptionDestroyAPIView(generics.DestroyAPIView):
+    """
+    Контроллер для удаления подписки.
+    """
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
     permission_classes = [IsAuthenticated]
