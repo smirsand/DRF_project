@@ -1,8 +1,12 @@
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from config.settings import STRIPE_SECRET_KEY
 from main.models import Course, Lesson, Payment, Subscription
 from main.paginators import LessonPaginator
 from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
@@ -100,6 +104,23 @@ class PaymentCreateAPIView(generics.CreateAPIView):
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        payment = stripe.PaymentIntent.create(
+            amount=request.data['amount'],
+            currency='usd'
+        )
+
+        payment.save()
+        return JsonResponse(payment.to_dict())
+
+    def confirm_payment(self, payment_id):
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        payment_intent = stripe.PaymentIntent.retrieve(payment_id)
+        return payment_intent
 
 
 class PaymentListAPIView(generics.ListAPIView):
