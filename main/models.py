@@ -56,6 +56,7 @@ class Payment(models.Model):
     amount = models.PositiveIntegerField(verbose_name='сумма оплаты')
     payment_method = models.CharField(choices=[('cash', 'Наличные'), ('transfer', 'Перевод на счет')],
                                       verbose_name='способ оплаты')
+    payment_id = models.CharField(max_length=255, primary_key=True, unique=True, default='')
 
     def __str__(self):
         return f'Платеж {self.id}, {self.user} от {self.payment_date}'
