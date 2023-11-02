@@ -25,7 +25,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         new_course = serializer.save()
-        send_course_update_emails(new_course.id)  # Отложенный вызов
+        send_course_update_emails.delay(new_course.id)  # Отложенный вызов
         new_course.owner = self.request.user
         new_course.save()
 
