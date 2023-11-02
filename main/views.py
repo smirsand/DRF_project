@@ -10,6 +10,7 @@ from config.settings import STRIPE_SECRET_KEY
 from main.models import Course, Lesson, Payment, Subscription
 from main.paginators import LessonPaginator
 from main.serliazers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
+from main.tasks import send_course_update_emails
 from users.permissions import IsModeratorBanLesson, IsOwnerOfStaff, IsModeratorReadOnlyUpdate
 
 
@@ -24,6 +25,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         new_course = serializer.save()
+        send_course_update_emails(new_course.id)  # Отложенный вызов
         new_course.owner = self.request.user
         new_course.save()
 
