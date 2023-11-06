@@ -9,7 +9,7 @@ from .models import Course
 
 
 @shared_task
-def send_course_update_emails(course_id, *args, **kwargs):
+def send_course_update_emails(course_id):
     """
     Отправляет электронное письмо клиенту после обновления курса.
     """
