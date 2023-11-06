@@ -42,13 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'drf_yasg',
 
-    'rest_framework_simplejwt',
-    'django_filters',
     'rest_framework',
-    'users',
+    'django_filters',
+    'rest_framework_simplejwt',
+    'drf_yasg',
+    'django_crontab',
+    "django_celery_beat",
+
     'main',
+    'users',
 
 ]
 
@@ -157,7 +160,6 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
-
 
 # Настройки для Celery
 
