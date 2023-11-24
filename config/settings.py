@@ -88,12 +88,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv('DATABASES_ENGINE'),
+#         'NAME': os.getenv('DATABASES_NAME'),
+#         'USER': os.getenv('DATABASES_USER'),
+#         'PASSWORD': os.getenv('DATABASES_PASSWORD'),
+#         'HOST': os.getenv('HOST')
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DATABASES_ENGINE'),
-        'NAME': os.getenv('DATABASES_NAME'),
-        'USER': os.getenv('DATABASES_USER'),
-        'PASSWORD': os.getenv('DATABASES_PASSWORD')
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'mysecretpassword',
+        'HOST': 'db'
     }
 }
 
